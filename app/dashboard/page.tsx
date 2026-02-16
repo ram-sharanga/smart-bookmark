@@ -1,30 +1,43 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { SignOutButton } from "@/components/SignOutButton"; // 1. Import it here
+import { fetchBookmarks } from "@/app/actions/bookmarks";
+import { BookmarkList } from "@/components/BookmarkList";
+import { DashboardHeader } from "@/components/DashboardHeader";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect("/");
   }
 
-  return (
-    <main className="min-h-screen bg-background p-8 flex flex-col gap-4">
-      <div>
-        <p className="text-foreground font-head text-2xl font-bold">
-          Dashboard — coming in Group C
-        </p>
-        <p className="text-muted text-sm mt-2">
-          Logged in as: {user.email}
-        </p>
-      </div>
+  const { data: bookmarks, error } = await fetchBookmarks();
 
-      {/* 2. Place it here so it renders on the screen */}
-      <div className="pt-4 border-t border-card-border">
-        <SignOutButton />
-      </div>
-    </main>
+  const avatarUrl =
+    user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <DashboardHeader
+        email={user.email ?? ""}
+        avatarUrl={avatarUrl}
+      />
+      <main className="max-w-3xl mx-auto px-4 py-6">
+        {error ? (
+          <div className="bg-danger/10 border border-danger/30 text-danger rounded-xl p-4 text-sm font-body">
+            Failed to load bookmarks: {error}
+          </div>
+        ) : (
+          <BookmarkList
+            initialBookmarks={bookmarks ?? []}
+            userId={user.id}
+          />
+        )}
+      </main>
+    </div>
   );
 }
