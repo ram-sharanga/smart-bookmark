@@ -20,11 +20,19 @@ export function SignOutButton() {
     <button
       onClick={handleSignOut}
       disabled={loading}
-      className="text-xs font-medium px-3 py-1.5 rounded-[var(--radius-xs)] transition-all duration-200 disabled:opacity-50"
+      className="text-xs font-medium px-2.5 py-1.5 rounded-lg transition-all duration-150 disabled:opacity-50"
       style={{
-        color: "var(--text-secondary)",
-        background: "var(--surface)",
-        border: "1px solid var(--border-subtle)",
+        background: "transparent",
+        color: "var(--text-tertiary)",
+        fontFamily: "var(--font-body)",
+      }}
+      onMouseEnter={(e) => {
+        (e.target as HTMLButtonElement).style.color = "var(--danger)";
+        (e.target as HTMLButtonElement).style.background = "var(--bg-subtle)";
+      }}
+      onMouseLeave={(e) => {
+        (e.target as HTMLButtonElement).style.color = "var(--text-tertiary)";
+        (e.target as HTMLButtonElement).style.background = "transparent";
       }}
     >
       {loading ? "…" : "Sign out"}

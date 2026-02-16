@@ -10,13 +10,8 @@ type Props = {
   bookmarkCount: number;
 };
 
-// Proper hydration-safe mount check — no setState in effect
 function useIsMounted() {
-  return useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
+  return useSyncExternalStore(() => () => {}, () => true, () => false);
 }
 
 export function DashboardHeader({ email, avatarUrl, bookmarkCount }: Props) {
@@ -25,70 +20,65 @@ export function DashboardHeader({ email, avatarUrl, bookmarkCount }: Props) {
 
   return (
     <header
-      className="sticky top-0 z-30 w-full"
+      className="sticky top-0 z-30"
       style={{
-        background: "var(--surface)",
-        backdropFilter: "var(--blur)",
-        WebkitBackdropFilter: "var(--blur)",
-        borderBottom: "1px solid var(--border-subtle)",
-        boxShadow: "var(--shadow-card)",
+        background: "var(--header-bg)",
+        borderBottom: "1px solid var(--header-border)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
       }}
     >
-      <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div
+        className="max-w-2xl mx-auto px-4 sm:px-6 flex items-center justify-between"
+        style={{ height: "56px" }}
+      >
         {/* Logo */}
         <div className="flex items-center gap-2.5">
           <div
-            className="w-8 h-8 rounded-[var(--radius-xs)] flex items-center justify-center text-lg shrink-0"
-            style={{
-              background: "var(--accent)",
-              boxShadow: "0 4px 12px rgba(99,102,241,0.35)",
-            }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-base"
+            style={{ background: "var(--accent)", boxShadow: "0 2px 8px var(--accent-shadow)" }}
           >
             🔖
           </div>
           <span
-            className="font-[family-name:var(--font-head)] text-lg font-black tracking-tight"
-            style={{ color: "var(--text)" }}
+            className="text-lg tracking-tight"
+            style={{ fontFamily: "var(--font-head)", fontWeight: 600, color: "var(--text-primary)" }}
           >
-            Book<span style={{ color: "var(--accent)" }}>mark.</span>
+            Bookmark<span style={{ color: "var(--accent)" }}>.</span>
           </span>
-          {/* Live dot */}
-          <div className="flex items-center gap-1 ml-1">
+          {/* Live indicator */}
+          <div className="flex items-center gap-1.5 ml-1">
             <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse inline-block"
-              style={{ background: "var(--success)" }}
+              className="w-1.5 h-1.5 rounded-full animate-pulse"
+              style={{ background: "var(--success)", display: "inline-block" }}
             />
-            <span
-              className="text-xs hidden sm:block"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              live
-            </span>
+            <span className="text-xs hidden sm:block" style={{ color: "var(--text-tertiary)" }}>live</span>
           </div>
         </div>
 
         {/* Right */}
         <div className="flex items-center gap-2">
-          {/* Bookmark count */}
+          {/* Count */}
           <span
-            className="text-xs font-semibold px-2.5 py-1 rounded-full hidden sm:block"
+            className="text-xs font-medium px-2.5 py-1 rounded-full hidden sm:block"
             style={{
               background: "var(--accent-light)",
               color: "var(--accent)",
             }}
           >
-            {bookmarkCount} saved
+            {bookmarkCount} {bookmarkCount === 1 ? "link" : "links"}
           </span>
 
-          {/* Theme toggle — only renders after hydration */}
+          {/* Theme toggle */}
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xs)] transition-all duration-200 text-base"
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-150"
               style={{
-                background: "var(--surface)",
-                border: "1px solid var(--border-subtle)",
-                color: "var(--text-secondary)",
+                background: "var(--bg-subtle)",
+                border: "1px solid var(--divider)",
+                color: "var(--text-tertiary)",
+                fontSize: "14px",
               }}
               title="Toggle theme"
             >
@@ -101,13 +91,13 @@ export function DashboardHeader({ email, avatarUrl, bookmarkCount }: Props) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={avatarUrl}
-              alt={email}
-              className="w-8 h-8 rounded-full shrink-0"
-              style={{ border: "2px solid var(--border)" }}
+              alt=""
+              className="w-7 h-7 rounded-full"
+              style={{ border: "1.5px solid var(--divider)" }}
             />
           ) : (
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold"
               style={{ background: "var(--accent)" }}
             >
               {email.charAt(0).toUpperCase()}

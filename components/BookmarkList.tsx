@@ -3,9 +3,9 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import type { Bookmark } from "@/types/bookmark";
 import { BookmarkCard } from "./BookmarkCard";
-import { useRealtimeBookmarks } from "@/hooks/useRealtimeBookmarks";
 import { ToastContainer, useToast } from "./Toast";
 import { AddBookmarkModal } from "./AddBookmarkModal";
+import { createClient } from "@/utils/supabase/client";
 
 type Props = {
   initialBookmarks: Bookmark[];
@@ -19,12 +19,59 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "alpha">("newest");
   const { toasts, addToast, removeToast } = useToast();
-
-  // Ref so realtime handlers always read current bookmarks without stale closure
   const bookmarksRef = useRef<Bookmark[]>(initialBookmarks);
+
   useEffect(() => {
     bookmarksRef.current = bookmarks;
   }, [bookmarks]);
+
+  // Realtime subscription — inline, no custom hook, no stale closure
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel(`bookmarks-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "bookmarks",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const newBookmark = payload.new as Bookmark;
+          setBookmarks((prev) => {
+            if (prev.find((b) => b.id === newBookmark.id)) return prev;
+            return [newBookmark, ...prev];
+          });
+          addToast("Bookmark added!", "success");
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "bookmarks",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const deletedId = payload.old.id as string;
+          setBookmarks((prev) => prev.filter((b) => b.id !== deletedId));
+        }
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log("✓ Realtime connected");
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -38,23 +85,6 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
-
-  // No useCallback — let React compiler optimize freely
-  function handleRealtimeInsert(bookmark: Bookmark) {
-    if (bookmarksRef.current.find((b) => b.id === bookmark.id)) return;
-    setBookmarks((prev) => [bookmark, ...prev]);
-    addToast("Bookmark synced!", "success");
-  }
-
-  function handleRealtimeDelete(id: string) {
-    setBookmarks((prev) => prev.filter((b) => b.id !== id));
-  }
-
-  useRealtimeBookmarks({
-    userId,
-    onInsert: handleRealtimeInsert,
-    onDelete: handleRealtimeDelete,
-  });
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -95,12 +125,9 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
       />
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+      <div className="flex flex-col sm:flex-row gap-2.5 mb-6">
         <div className="relative flex-1">
-          <span
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm pointer-events-none"
-            style={{ color: "var(--text-secondary)" }}
-          >
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm pointer-events-none" style={{ color: "var(--text-tertiary)" }}>
             🔍
           </span>
           <input
@@ -108,37 +135,32 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search bookmarks…"
-            className="w-full rounded-[var(--radius-sm)] pl-10 pr-10 py-3 text-sm outline-none transition-all"
+            className="w-full pl-10 pr-10 py-2.5 text-sm outline-none transition-all"
             style={{
-              background: "var(--surface)",
-              backdropFilter: "var(--blur)",
-              WebkitBackdropFilter: "var(--blur)",
-              border: "1px solid var(--border)",
-              color: "var(--text)",
-              boxShadow: "var(--shadow-card)",
+              background: "var(--input-bg)",
+              border: "1.5px solid var(--input-border)",
+              borderRadius: "10px",
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-body)",
             }}
+            onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--input-border)")}
           />
           {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm transition-opacity"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              ✕
-            </button>
+            <button onClick={() => setSearch("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs" style={{ color: "var(--text-tertiary)" }}>✕</button>
           )}
         </div>
 
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
-          className="rounded-[var(--radius-sm)] px-3 py-3 text-sm outline-none cursor-pointer transition-all"
+          className="px-3 py-2.5 text-sm outline-none cursor-pointer"
           style={{
-            background: "var(--surface)",
-            backdropFilter: "var(--blur)",
-            border: "1px solid var(--border)",
-            color: "var(--text)",
-            boxShadow: "var(--shadow-card)",
+            background: "var(--input-bg)",
+            border: "1.5px solid var(--input-border)",
+            borderRadius: "10px",
+            color: "var(--text-primary)",
+            fontFamily: "var(--font-body)",
           }}
         >
           <option value="newest">Newest</option>
@@ -148,73 +170,62 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="text-white rounded-[var(--radius-sm)] px-5 py-3 text-sm font-bold transition-all whitespace-nowrap flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white whitespace-nowrap transition-all duration-150 active:scale-95"
           style={{
             background: "var(--accent)",
-            boxShadow: "0 4px 20px rgba(99,102,241,0.4)",
+            borderRadius: "10px",
+            boxShadow: "0 2px 12px var(--accent-shadow)",
+            fontFamily: "var(--font-body)",
           }}
         >
-          <span className="text-base leading-none font-black">+</span>
+          <span className="text-base leading-none">+</span>
           Add Bookmark
-          <span className="hidden sm:inline text-xs opacity-60 font-normal ml-1">⌘K</span>
+          <span className="hidden sm:inline text-xs opacity-70 font-normal">⌘K</span>
         </button>
       </div>
 
       {/* Tag filter pills */}
       {allTags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-5">
-          <button
-            onClick={() => setActiveTag(null)}
-            className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
-            style={{
-              background: activeTag === null ? "var(--accent)" : "var(--surface)",
-              color: activeTag === null ? "white" : "var(--text-secondary)",
-              border: "1px solid var(--border)",
-              boxShadow: "var(--shadow-card)",
-            }}
-          >
-            All
-          </button>
-          {allTags.map((tag) => (
-            <button
-              key={tag}
-              onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-              className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
-              style={{
-                background: activeTag === tag ? "var(--accent)" : "var(--surface)",
-                color: activeTag === tag ? "white" : "var(--text-secondary)",
-                border: "1px solid var(--border)",
-                boxShadow: "var(--shadow-card)",
-              }}
-            >
-              #{tag}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          {["All", ...allTags].map((tag) => {
+            const isAll = tag === "All";
+            const isActive = isAll ? activeTag === null : activeTag === tag;
+            return (
+              <button
+                key={tag}
+                onClick={() => setActiveTag(isAll ? null : activeTag === tag ? null : tag)}
+                className="text-xs font-medium px-3 py-1 rounded-full transition-all duration-150"
+                style={{
+                  background: isActive ? "var(--accent)" : "var(--tag-bg)",
+                  color: isActive ? "white" : "var(--text-secondary)",
+                  border: `1px solid ${isActive ? "var(--accent)" : "var(--tag-border)"}`,
+                }}
+              >
+                {isAll ? "All" : `#${tag}`}
+              </button>
+            );
+          })}
         </div>
       )}
 
       {/* Count */}
-      <p className="text-xs mb-4" style={{ color: "var(--text-secondary)" }}>
+      <p className="text-xs mb-3" style={{ color: "var(--text-tertiary)", fontFamily: "var(--font-body)" }}>
         {filtered.length === bookmarks.length
           ? `${bookmarks.length} bookmark${bookmarks.length !== 1 ? "s" : ""}`
-          : `${filtered.length} of ${bookmarks.length}`}
+          : `${filtered.length} of ${bookmarks.length} bookmarks`}
       </p>
 
       {/* List */}
       {filtered.length === 0 ? (
-        <EmptyState
-          hasBookmarks={bookmarks.length > 0}
-          onAdd={() => setIsModalOpen(true)}
-        />
+        <EmptyState hasBookmarks={bookmarks.length > 0} onAdd={() => setIsModalOpen(true)} />
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           {filtered.map((bookmark) => (
             <BookmarkCard
               key={bookmark.id}
               bookmark={bookmark}
               onDelete={(id) => {
                 setBookmarks((prev) => prev.filter((b) => b.id !== id));
-                addToast("Deleted.", "info");
               }}
               onError={(msg) => addToast(msg, "error")}
             />
@@ -225,37 +236,23 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
   );
 }
 
-function EmptyState({
-  hasBookmarks,
-  onAdd,
-}: {
-  hasBookmarks: boolean;
-  onAdd: () => void;
-}) {
+function EmptyState({ hasBookmarks, onAdd }: { hasBookmarks: boolean; onAdd: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
-      <div className="text-5xl">{hasBookmarks ? "🔍" : "🔖"}</div>
-      <div>
-        <p
-          className="font-[family-name:var(--font-head)] font-bold text-lg"
-          style={{ color: "var(--text)" }}
-        >
-          {hasBookmarks ? "No matches found" : "Nothing saved yet"}
-        </p>
-        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-          {hasBookmarks
-            ? "Try a different search or tag."
-            : "Start saving links you love."}
-        </p>
+    <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-1" style={{ background: "var(--empty-icon-bg)" }}>
+        {hasBookmarks ? "🔍" : "🔖"}
       </div>
+      <p className="font-semibold text-base" style={{ color: "var(--text-primary)", fontFamily: "var(--font-head)" }}>
+        {hasBookmarks ? "No matches found" : "Nothing saved yet"}
+      </p>
+      <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+        {hasBookmarks ? "Try a different search or clear the filter." : "Hit Add Bookmark to save your first link."}
+      </p>
       {!hasBookmarks && (
         <button
           onClick={onAdd}
-          className="mt-2 text-white rounded-[var(--radius-sm)] px-6 py-2.5 text-sm font-bold transition-all"
-          style={{
-            background: "var(--accent)",
-            boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
-          }}
+          className="mt-2 px-5 py-2 text-sm font-semibold text-white rounded-xl transition-all active:scale-95"
+          style={{ background: "var(--accent)", boxShadow: "0 2px 12px var(--accent-shadow)" }}
         >
           + Add your first bookmark
         </button>

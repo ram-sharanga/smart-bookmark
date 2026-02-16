@@ -1,37 +1,59 @@
 export default function DashboardLoading() {
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
-      <div className="sticky top-0 z-30 h-16"
+    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
+      {/* Header skeleton */}
+      <div
+        className="sticky top-0 z-30"
         style={{
-          background: "var(--surface)",
-          backdropFilter: "var(--blur)",
-          borderBottom: "1px solid var(--border-subtle)",
-        }}>
-        <div className="max-w-2xl mx-auto px-4 h-full flex items-center justify-between">
-          <div className="w-32 h-5 rounded-full animate-pulse" style={{ background: "var(--surface-solid)" }} />
+          background: "var(--header-bg)",
+          borderBottom: "1px solid var(--header-border)",
+          height: "56px",
+        }}
+      >
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+          <div className="w-28 h-5 rounded-full animate-pulse" style={{ background: "var(--bg-subtle)" }} />
           <div className="flex gap-2">
-            <div className="w-20 h-6 rounded-full animate-pulse" style={{ background: "var(--surface-solid)" }} />
-            <div className="w-8 h-8 rounded-full animate-pulse" style={{ background: "var(--surface-solid)" }} />
+            <div className="w-16 h-6 rounded-full animate-pulse" style={{ background: "var(--bg-subtle)" }} />
+            <div className="w-8 h-8 rounded-full animate-pulse" style={{ background: "var(--bg-subtle)" }} />
           </div>
         </div>
       </div>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-3">
-        <div className="flex gap-3 mb-5">
-          <div className="flex-1 h-12 rounded-[var(--radius-sm)] animate-pulse" style={{ background: "var(--surface)" }} />
-          <div className="w-24 h-12 rounded-[var(--radius-sm)] animate-pulse" style={{ background: "var(--surface)" }} />
-          <div className="w-36 h-12 rounded-[var(--radius-sm)] animate-pulse" style={{ background: "var(--accent-light)" }} />
+
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+        {/* Heading skeleton */}
+        <div className="mb-7 space-y-2">
+          <div className="w-40 h-8 rounded-xl animate-pulse" style={{ background: "var(--bg-subtle)" }} />
+          <div className="w-56 h-4 rounded-full animate-pulse" style={{ background: "var(--bg-subtle)" }} />
         </div>
-        {[...Array(5)].map((_, i) => (
-          <div key={i}
-            className="glass rounded-[var(--radius)] p-4 flex gap-3 animate-pulse"
-            style={{ animationDelay: `${i * 60}ms` }}>
-            <div className="w-10 h-10 rounded-[var(--radius-xs)] flex-shrink-0" style={{ background: "var(--border-subtle)" }} />
-            <div className="flex-1 space-y-2 pt-1">
-              <div className="h-4 rounded-full w-3/4" style={{ background: "var(--border-subtle)" }} />
-              <div className="h-3 rounded-full w-1/2" style={{ background: "var(--border-subtle)" }} />
+
+        {/* Toolbar skeleton */}
+        <div className="flex gap-2.5 mb-6">
+          <div className="flex-1 h-10 rounded-xl animate-pulse" style={{ background: "var(--bg-subtle)" }} />
+          <div className="w-24 h-10 rounded-xl animate-pulse" style={{ background: "var(--bg-subtle)" }} />
+          <div className="w-36 h-10 rounded-xl animate-pulse" style={{ background: "var(--bg-subtle)", opacity: 0.7 }} />
+        </div>
+
+        {/* Card skeletons */}
+        <div className="flex flex-col gap-2.5">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3 p-4 animate-pulse"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--card-border)",
+                borderRadius: "14px",
+                animationDelay: `${i * 60}ms`,
+              }}
+            >
+              <div className="w-9 h-9 rounded-lg shrink-0" style={{ background: "var(--bg-subtle)" }} />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 rounded-full w-3/5" style={{ background: "var(--bg-subtle)" }} />
+                <div className="h-3 rounded-full w-2/5" style={{ background: "var(--bg-subtle)", opacity: 0.6 }} />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

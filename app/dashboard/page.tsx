@@ -13,40 +13,49 @@ export default async function DashboardPage() {
   const avatarUrl = user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
+      <DashboardHeader
+        email={user.email ?? ""}
+        avatarUrl={avatarUrl}
+        bookmarkCount={bookmarks?.length ?? 0}
+      />
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+        {/* Page heading */}
+        <div className="mb-7">
+          <h1
+            className="text-3xl mb-1"
+            style={{
+              fontFamily: "var(--font-head)",
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Your collection
+          </h1>
+          <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+            Everything you&apos;ve saved, always in sync.
+          </p>
+        </div>
 
-      {/* Subtle background blobs — same as login, but very faint */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-        <div className="absolute -top-60 -right-60 w-[500px] h-[500px] rounded-full opacity-10 dark:opacity-5"
-          style={{ background: "radial-gradient(circle, #6366f1, transparent 70%)" }} />
-        <div className="absolute -bottom-60 -left-60 w-[500px] h-[500px] rounded-full opacity-10 dark:opacity-5"
-          style={{ background: "radial-gradient(circle, #818cf8, transparent 70%)" }} />
-      </div>
-
-      <div className="relative" style={{ zIndex: 1 }}>
-        <DashboardHeader
-          email={user.email ?? ""}
-          avatarUrl={avatarUrl}
-          bookmarkCount={bookmarks?.length ?? 0}
-        />
-        <main className="max-w-2xl mx-auto px-4 py-6">
-          {error ? (
-            <div className="rounded-[var(--radius)] p-4 text-sm"
-              style={{
-                background: "var(--danger-light)",
-                border: "1px solid var(--danger)",
-                color: "var(--danger)",
-              }}>
-              Failed to load: {error}
-            </div>
-          ) : (
-            <BookmarkList
-              initialBookmarks={bookmarks ?? []}
-              userId={user.id}
-            />
-          )}
-        </main>
-      </div>
+        {error ? (
+          <div
+            className="rounded-2xl p-4 text-sm"
+            style={{
+              background: "var(--accent-light)",
+              border: "1px solid var(--accent-shadow)",
+              color: "var(--accent)",
+            }}
+          >
+            Failed to load bookmarks: {error}
+          </div>
+        ) : (
+          <BookmarkList
+            initialBookmarks={bookmarks ?? []}
+            userId={user.id}
+          />
+        )}
+      </main>
     </div>
   );
 }
