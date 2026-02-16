@@ -68,7 +68,7 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          
+          <a
             href={bookmark.url}
             target="_blank"
             rel="noopener noreferrer"
@@ -97,7 +97,7 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
 
         {/* Actions */}
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-          
+          <a
             href={bookmark.url}
             target="_blank"
             rel="noopener noreferrer"
