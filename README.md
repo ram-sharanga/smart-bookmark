@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bookmark.
 
-## Getting Started
+A private, real-time bookmark manager built with Next.js, Supabase, and Tailwind CSS.
 
-First, run the development server:
+🔗 **Live URL:** https://your-vercel-url.vercel.app
 
+## Tech Stack
+
+- **Next.js 14** (App Router) — React framework with server components
+- **Supabase** — Auth (Google OAuth), PostgreSQL database, Realtime WebSocket
+- **Tailwind CSS** — Utility-first styling
+- **next-themes** — Dark/light mode
+
+## Features
+
+- Google OAuth sign-in (no passwords)
+- Add bookmarks with URL, title, and tags
+- Auto-fetches page title when you enter a URL
+- Delete bookmarks with confirmation
+- Real-time sync across tabs and devices via Supabase Realtime (WebSocket)
+- Filter by tag, search by title/URL/tag, sort by date or alphabetically
+- Dark and light mode with system preference detection
+- Fully mobile responsive
+
+## Local Setup
+
+1. Clone the repo:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+   git clone https://github.com/YOUR_USERNAME/smart-bookmark.git
+   cd smart-bookmark
+   npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Create `.env.local`:
+```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run:
+```bash
+   npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Database Schema
+```sql
+create table public.bookmarks (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  url text not null,
+  title text not null,
+  tags text[] default '{}' not null,
+  created_at timestamptz default now() not null
+);
+```
 
-## Learn More
+Row Level Security is enabled — users can only access their own bookmarks.
 
-To learn more about Next.js, take a look at the following resources:
+## Problems Encountered & Solutions
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 1. OAuth redirect failing on production
+**Problem:** Sign-in worked locally but redirected to localhost after login on Vercel.  
+**Solution:** Added the production Vercel URL to both Supabase's URL Configuration (Site URL + Redirect URLs) and Google Cloud Console's Authorized JavaScript Origins.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2. Realtime not receiving events
+**Problem:** WebSocket subscription was set up but no events were firing.  
+**Solution:** Realtime replication was not enabled for the `bookmarks` table. Enabled it under Supabase → Database → Replication.
 
-## Deploy on Vercel
+### 3. Session not persisting across page refreshes in App Router
+**Problem:** User was getting logged out on refresh.  
+**Solution:** Used `@supabase/ssr` with the cookie-based server client instead of the default browser client, and added the `middleware.ts` session refresh logic.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 4. Duplicate bookmarks appearing when inserting
+**Problem:** When a user added a bookmark, it appeared twice — once from optimistic state update and once from the Realtime INSERT event.  
+**Solution:** In the Realtime INSERT handler, checked if the bookmark ID already exists in state before adding it, and let Realtime be the single source of truth for state updates after insert.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 5. RLS blocking deletes
+**Problem:** Delete calls were silently failing with a 403.  
+**Solution:** The DELETE RLS policy was missing. Added `create policy "Users can delete own bookmarks"` with `using (auth.uid() = user_id)`.
