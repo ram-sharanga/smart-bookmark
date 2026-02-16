@@ -17,7 +17,12 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Bookmark.",
-  description: "Your personal bookmark manager",
+  description: "Your private bookmark manager — synced in real time.",
+  openGraph: {
+    title: "Bookmark.",
+    description: "Your private bookmark manager — synced in real time.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
