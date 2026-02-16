@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 export default async function LoginPage() {
   // If user is already logged in, skip the login page
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (user) {
     redirect("/dashboard");
