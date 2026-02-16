@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
 
 export async function addBookmark(formData: {
   url: string;
@@ -14,20 +13,15 @@ export async function addBookmark(formData: {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return { error: "Not authenticated" };
-  }
+  if (!user) return { error: "Not authenticated" };
 
-  // Validate URL
   try {
     new URL(formData.url);
   } catch {
     return { error: "Please enter a valid URL including https://" };
   }
 
-  if (!formData.title.trim()) {
-    return { error: "Title cannot be empty" };
-  }
+  if (!formData.title.trim()) return { error: "Title cannot be empty" };
 
   const { error } = await supabase.from("bookmarks").insert({
     url: formData.url.trim(),
@@ -36,11 +30,9 @@ export async function addBookmark(formData: {
     user_id: user.id,
   });
 
-  if (error) {
-    return { error: error.message };
-  }
+  if (error) return { error: error.message };
 
-  revalidatePath("/dashboard");
+  // NO revalidatePath — realtime handles state for all tabs including this one
   return { success: true };
 }
 
@@ -51,21 +43,17 @@ export async function deleteBookmark(id: string) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return { error: "Not authenticated" };
-  }
+  if (!user) return { error: "Not authenticated" };
 
   const { error } = await supabase
     .from("bookmarks")
     .delete()
     .eq("id", id)
-    .eq("user_id", user.id); // extra safety on top of RLS
+    .eq("user_id", user.id);
 
-  if (error) {
-    return { error: error.message };
-  }
+  if (error) return { error: error.message };
 
-  revalidatePath("/dashboard");
+  // NO revalidatePath — realtime handles state for all tabs including this one
   return { success: true };
 }
 
@@ -77,9 +65,7 @@ export async function fetchBookmarks() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    return { error: error.message, data: [] };
-  }
+  if (error) return { error: error.message, data: [] };
 
   return { data: data ?? [], error: null };
 }

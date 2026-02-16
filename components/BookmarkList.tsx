@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import type { Bookmark } from "@/types/bookmark";
 import { BookmarkCard } from "./BookmarkCard";
 import { useRealtimeBookmarks } from "@/hooks/useRealtimeBookmarks";
@@ -17,46 +17,38 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "alpha">(
-    "newest",
-  );
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "alpha">("newest");
   const { toasts, addToast, removeToast } = useToast();
 
-  // Keyboard shortcut: Cmd+K or Ctrl+K to open modal
+  // Ref so realtime handlers always read current bookmarks without stale closure
+  const bookmarksRef = useRef<Bookmark[]>(initialBookmarks);
+  useEffect(() => {
+    bookmarksRef.current = bookmarks;
+  }, [bookmarks]);
+
+  // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setIsModalOpen(true);
       }
-      if (e.key === "Escape") {
-        setIsModalOpen(false);
-      }
+      if (e.key === "Escape") setIsModalOpen(false);
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Realtime: insert handler
-  const handleRealtimeInsert = useCallback(
-    (bookmark: Bookmark) => {
-      setBookmarks((prev) => {
-        // Avoid duplicates (in case the inserting tab also updates state)
-        if (prev.find((b) => b.id === bookmark.id)) return prev;
-        addToast("New bookmark synced from another tab!", "info");
-        return [bookmark, ...prev];
-      });
-    },
-    [addToast],
-  );
+  // No useCallback — let React compiler optimize freely
+  function handleRealtimeInsert(bookmark: Bookmark) {
+    if (bookmarksRef.current.find((b) => b.id === bookmark.id)) return;
+    setBookmarks((prev) => [bookmark, ...prev]);
+    addToast("Bookmark synced!", "success");
+  }
 
-  // Realtime: delete handler
-  const handleRealtimeDelete = useCallback((id: string) => {
-    setBookmarks((prev) => {
-      if (!prev.find((b) => b.id === id)) return prev;
-      return prev.filter((b) => b.id !== id);
-    });
-  }, []);
+  function handleRealtimeDelete(id: string) {
+    setBookmarks((prev) => prev.filter((b) => b.id !== id));
+  }
 
   useRealtimeBookmarks({
     userId,
@@ -64,51 +56,31 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
     onDelete: handleRealtimeDelete,
   });
 
-  // Optimistic delete (instant UI, no waiting for server)
-  function handleDelete(id: string) {
-    setBookmarks((prev) => prev.filter((b) => b.id !== id));
-    addToast("Bookmark deleted.", "success");
-  }
-
-  // Get all unique tags across bookmarks for the filter bar
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     bookmarks.forEach((b) => b.tags.forEach((t) => tagSet.add(t)));
     return Array.from(tagSet).sort();
   }, [bookmarks]);
 
-  // Filter + search + sort
   const filtered = useMemo(() => {
     let result = [...bookmarks];
-
-    if (activeTag) {
-      result = result.filter((b) => b.tags.includes(activeTag));
-    }
-
+    if (activeTag) result = result.filter((b) => b.tags.includes(activeTag));
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
         (b) =>
           b.title.toLowerCase().includes(q) ||
           b.url.toLowerCase().includes(q) ||
-          b.tags.some((t) => t.includes(q)),
+          b.tags.some((t) => t.includes(q))
       );
     }
-
     if (sortOrder === "newest") {
-      result.sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      );
+      result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     } else if (sortOrder === "oldest") {
-      result.sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-      );
-    } else if (sortOrder === "alpha") {
+      result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    } else {
       result.sort((a, b) => a.title.localeCompare(b.title));
     }
-
     return result;
   }, [bookmarks, activeTag, search, sortOrder]);
 
@@ -118,70 +90,88 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
       <AddBookmarkModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={(msg) => {
-          addToast(msg, "success");
-          // Note: Realtime will push the new bookmark to state,
-          // so we don't need to manually update here
-        }}
+        onSuccess={(msg) => addToast(msg, "success")}
         onError={(msg) => addToast(msg, "error")}
       />
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
+          <span
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm pointer-events-none"
+            style={{ color: "var(--text-secondary)" }}
+          >
             🔍
           </span>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by title, URL, or tag…"
-            className="w-full bg-card border border-card-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground font-body placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
+            placeholder="Search bookmarks…"
+            className="w-full rounded-[var(--radius-sm)] pl-10 pr-10 py-3 text-sm outline-none transition-all"
+            style={{
+              background: "var(--surface)",
+              backdropFilter: "var(--blur)",
+              WebkitBackdropFilter: "var(--blur)",
+              border: "1px solid var(--border)",
+              color: "var(--text)",
+              boxShadow: "var(--shadow-card)",
+            }}
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground text-sm"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm transition-opacity"
+              style={{ color: "var(--text-secondary)" }}
             >
               ✕
             </button>
           )}
         </div>
 
-        {/* Sort */}
         <select
           value={sortOrder}
-          onChange={(e) =>
-            setSortOrder(e.target.value as "newest" | "oldest" | "alpha")
-          }
-          className="bg-card border border-card-border rounded-xl px-3 py-2.5 text-sm text-foreground font-body focus:outline-none focus:border-accent transition-all cursor-pointer"
+          onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
+          className="rounded-[var(--radius-sm)] px-3 py-3 text-sm outline-none cursor-pointer transition-all"
+          style={{
+            background: "var(--surface)",
+            backdropFilter: "var(--blur)",
+            border: "1px solid var(--border)",
+            color: "var(--text)",
+            boxShadow: "var(--shadow-card)",
+          }}
         >
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
           <option value="alpha">A → Z</option>
         </select>
 
-        {/* Add button */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-accent hover:bg-accent-hover text-white rounded-xl px-5 py-2.5 text-sm font-head font-bold transition-all whitespace-nowrap flex items-center gap-2"
+          className="text-white rounded-[var(--radius-sm)] px-5 py-3 text-sm font-bold transition-all whitespace-nowrap flex items-center justify-center gap-2"
+          style={{
+            background: "var(--accent)",
+            boxShadow: "0 4px 20px rgba(99,102,241,0.4)",
+          }}
         >
-          <span className="text-base leading-none">+</span>
+          <span className="text-base leading-none font-black">+</span>
           Add Bookmark
+          <span className="hidden sm:inline text-xs opacity-60 font-normal ml-1">⌘K</span>
         </button>
       </div>
 
-      {/* Tag filter bar */}
+      {/* Tag filter pills */}
       {allTags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-5">
           <button
             onClick={() => setActiveTag(null)}
-            className={`text-xs font-semibold px-3 py-1 rounded-full transition-all ${
-              activeTag === null
-                ? "bg-accent text-white"
-                : "bg-card border border-card-border text-muted hover:text-foreground"
-            }`}
+            className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+            style={{
+              background: activeTag === null ? "var(--accent)" : "var(--surface)",
+              color: activeTag === null ? "white" : "var(--text-secondary)",
+              border: "1px solid var(--border)",
+              boxShadow: "var(--shadow-card)",
+            }}
           >
             All
           </button>
@@ -189,11 +179,13 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
             <button
               key={tag}
               onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-              className={`text-xs font-semibold px-3 py-1 rounded-full transition-all ${
-                activeTag === tag
-                  ? "bg-accent text-white"
-                  : "bg-card border border-card-border text-muted hover:text-foreground"
-              }`}
+              className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+              style={{
+                background: activeTag === tag ? "var(--accent)" : "var(--surface)",
+                color: activeTag === tag ? "white" : "var(--text-secondary)",
+                border: "1px solid var(--border)",
+                boxShadow: "var(--shadow-card)",
+              }}
             >
               #{tag}
             </button>
@@ -202,10 +194,10 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
       )}
 
       {/* Count */}
-      <p className="text-xs text-muted mb-3 font-body">
+      <p className="text-xs mb-4" style={{ color: "var(--text-secondary)" }}>
         {filtered.length === bookmarks.length
           ? `${bookmarks.length} bookmark${bookmarks.length !== 1 ? "s" : ""}`
-          : `${filtered.length} of ${bookmarks.length} bookmarks`}
+          : `${filtered.length} of ${bookmarks.length}`}
       </p>
 
       {/* List */}
@@ -220,7 +212,10 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
             <BookmarkCard
               key={bookmark.id}
               bookmark={bookmark}
-              onDelete={handleDelete}
+              onDelete={(id) => {
+                setBookmarks((prev) => prev.filter((b) => b.id !== id));
+                addToast("Deleted.", "info");
+              }}
               onError={(msg) => addToast(msg, "error")}
             />
           ))}
@@ -238,22 +233,29 @@ function EmptyState({
   onAdd: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+    <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
       <div className="text-5xl">{hasBookmarks ? "🔍" : "🔖"}</div>
       <div>
-        <p className="font-head font-bold text-lg text-foreground">
-          {hasBookmarks ? "No matches found" : "No bookmarks yet"}
+        <p
+          className="font-[family-name:var(--font-head)] font-bold text-lg"
+          style={{ color: "var(--text)" }}
+        >
+          {hasBookmarks ? "No matches found" : "Nothing saved yet"}
         </p>
-        <p className="text-muted text-sm mt-1">
+        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
           {hasBookmarks
-            ? "Try a different search or tag filter."
-            : "Hit the button below to save your first link."}
+            ? "Try a different search or tag."
+            : "Start saving links you love."}
         </p>
       </div>
       {!hasBookmarks && (
         <button
           onClick={onAdd}
-          className="mt-2 bg-accent hover:bg-accent-hover text-white rounded-xl px-6 py-2.5 text-sm font-head font-bold transition-all"
+          className="mt-2 text-white rounded-[var(--radius-sm)] px-6 py-2.5 text-sm font-bold transition-all"
+          style={{
+            background: "var(--accent)",
+            boxShadow: "0 4px 16px rgba(99,102,241,0.35)",
+          }}
         >
           + Add your first bookmark
         </button>

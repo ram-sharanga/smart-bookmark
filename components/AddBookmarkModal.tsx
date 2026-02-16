@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, KeyboardEvent } from "react";
 import { addBookmark } from "@/app/actions/bookmarks";
-import { useToast } from "./Toast";
 
 type Props = {
   isOpen: boolean;
@@ -20,38 +19,24 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
   const [fetchingTitle, setFetchingTitle] = useState(false);
   const urlInputRef = useRef<HTMLInputElement>(null);
 
-  // Focus URL input when modal opens
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => urlInputRef.current?.focus(), 100);
     } else {
-      // Reset form on close
-      setUrl("");
-      setTitle("");
-      setTagInput("");
-      setTags([]);
+      setUrl(""); setTitle(""); setTagInput(""); setTags([]);
     }
   }, [isOpen]);
 
-  // Auto-fetch page title when URL is entered
   async function handleUrlBlur() {
     if (!url || title) return;
-    try {
-      new URL(url);
-    } catch {
-      return;
-    }
-
+    try { new URL(url); } catch { return; }
     setFetchingTitle(true);
     try {
       const res = await fetch(`/api/fetch-title?url=${encodeURIComponent(url)}`);
       const data = await res.json();
       if (data.title) setTitle(data.title);
-    } catch {
-      // silently fail — user can type title manually
-    } finally {
-      setFetchingTitle(false);
-    }
+    } catch { /* silent */ }
+    finally { setFetchingTitle(false); }
   }
 
   function handleTagKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -68,24 +53,18 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
     }
   }
 
-  function removeTag(tag: string) {
-    setTags(tags.filter((t) => t !== tag));
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-
     const result = await addBookmark({ url, title, tags });
-
     if (result.error) {
       onError(result.error);
+      setLoading(false);
     } else {
       onSuccess("Bookmark saved!");
       onClose();
+      // Don't setLoading(false) — modal closes, realtime will add to list
     }
-
-    setLoading(false);
   }
 
   if (!isOpen) return null;
@@ -93,35 +72,43 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-40 backdrop-blur-sm"
+        style={{ background: "rgba(0,0,0,0.4)" }}
+        onClick={onClose} />
 
-      {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div className="bg-card border border-card-border rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md shadow-[var(--shadow-md)] p-6 space-y-5">
-          {/* Handle (mobile) */}
-          <div className="w-10 h-1 bg-card-border rounded-full mx-auto sm:hidden" />
+      {/* Sheet — bottom on mobile, centered on desktop */}
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+        <div
+          className="w-full sm:max-w-md rounded-t-[28px] sm:rounded-[var(--radius)] p-6 space-y-5"
+          style={{
+            background: "var(--surface-solid)",
+            border: "1px solid var(--border)",
+            boxShadow: "var(--shadow-lg)",
+          }}
+        >
+          {/* Mobile handle */}
+          <div className="w-10 h-1 rounded-full mx-auto sm:hidden"
+            style={{ background: "var(--border-subtle)" }} />
 
+          {/* Header */}
           <div className="flex items-center justify-between">
-            <h2 className="font-head text-xl font-bold text-foreground">
+            <h2 className="font-[family-name:var(--font-head)] text-xl font-bold"
+              style={{ color: "var(--text)" }}>
               Add Bookmark
             </h2>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:bg-input-bg hover:text-foreground transition-colors text-lg"
-            >
+            <button onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xs)] text-sm transition-all"
+              style={{ color: "var(--text-secondary)", background: "var(--surface)" }}>
               ✕
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+
             {/* URL */}
             <div>
-              <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
-                URL
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                style={{ color: "var(--text-secondary)" }}>URL</label>
               <input
                 ref={urlInputRef}
                 type="url"
@@ -130,19 +117,28 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
                 onBlur={handleUrlBlur}
                 placeholder="https://example.com"
                 required
-                className="w-full bg-input-bg border border-card-border rounded-xl px-4 py-3 text-sm text-foreground font-body placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
+                className="w-full rounded-[var(--radius-sm)] px-4 py-3 text-sm outline-none transition-all"
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-subtle)",
+                  color: "var(--text)",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--accent)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--accent-light)";
+                }}
+                onBlurCapture={(e) => {
+                  e.target.style.borderColor = "var(--border-subtle)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
             {/* Title */}
             <div>
-              <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
-                Title
-                {fetchingTitle && (
-                  <span className="ml-2 text-accent normal-case font-normal">
-                    fetching…
-                  </span>
-                )}
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                style={{ color: "var(--text-secondary)" }}>
+                Title {fetchingTitle && <span style={{ color: "var(--accent)" }} className="normal-case font-normal">— fetching…</span>}
               </label>
               <input
                 type="text"
@@ -150,32 +146,43 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Page title"
                 required
-                className="w-full bg-input-bg border border-card-border rounded-xl px-4 py-3 text-sm text-foreground font-body placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
+                className="w-full rounded-[var(--radius-sm)] px-4 py-3 text-sm outline-none transition-all"
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-subtle)",
+                  color: "var(--text)",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--accent)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--accent-light)";
+                }}
+                onBlurCapture={(e) => {
+                  e.target.style.borderColor = "var(--border-subtle)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
             </div>
 
             {/* Tags */}
             <div>
-              <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
-                Tags{" "}
-                <span className="normal-case font-normal text-muted">
-                  (press Enter or comma to add)
-                </span>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
+                style={{ color: "var(--text-secondary)" }}>
+                Tags <span className="normal-case font-normal">— press Enter or comma to add</span>
               </label>
-              <div className="bg-input-bg border border-card-border rounded-xl px-3 py-2.5 flex flex-wrap gap-1.5 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 transition-all min-h-[46px]">
+              <div
+                className="rounded-[var(--radius-sm)] px-3 py-2.5 flex flex-wrap gap-1.5 min-h-[46px] transition-all"
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-subtle)",
+                }}
+              >
                 {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1 bg-accent/10 text-accent text-xs font-semibold px-2 py-0.5 rounded-md"
-                  >
+                  <span key={tag}
+                    className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: "var(--accent-light)", color: "var(--accent)" }}>
                     #{tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="hover:text-danger transition-colors leading-none"
-                    >
-                      ✕
-                    </button>
+                    <button type="button" onClick={() => setTags(tags.filter(t => t !== tag))}
+                      className="hover:opacity-60 transition-opacity">✕</button>
                   </span>
                 ))}
                 <input
@@ -184,28 +191,29 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleTagKeyDown}
                   placeholder={tags.length === 0 ? "design, tools, ai…" : ""}
-                  className="flex-1 min-w-[80px] bg-transparent text-sm text-foreground font-body placeholder:text-muted focus:outline-none"
+                  className="flex-1 min-w-[80px] bg-transparent text-sm outline-none"
+                  style={{ color: "var(--text)" }}
                 />
               </div>
             </div>
 
             {/* Buttons */}
             <div className="flex gap-3 pt-1">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 border border-card-border rounded-xl py-3 text-sm font-body font-medium text-muted hover:text-foreground hover:border-foreground/30 transition-all"
-              >
+              <button type="button" onClick={onClose}
+                className="flex-1 rounded-[var(--radius-sm)] py-3 text-sm font-medium transition-all"
+                style={{
+                  background: "var(--surface)",
+                  color: "var(--text-secondary)",
+                  border: "1px solid var(--border-subtle)",
+                }}>
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-accent hover:bg-accent-hover text-white rounded-xl py-3 text-sm font-head font-bold transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {loading ? (
+              <button type="submit" disabled={loading}
+                className="flex-1 text-white rounded-[var(--radius-sm)] py-3 text-sm font-bold transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+                style={{ background: "var(--accent)", boxShadow: "0 4px 16px rgba(99,102,241,0.35)" }}>
+                {loading && (
                   <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                ) : null}
+                )}
                 {loading ? "Saving…" : "Save Bookmark"}
               </button>
             </div>

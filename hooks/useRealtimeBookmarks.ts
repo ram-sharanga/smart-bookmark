@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { Bookmark } from "@/types/bookmark";
 
@@ -11,11 +11,23 @@ type Props = {
 };
 
 export function useRealtimeBookmarks({ userId, onInsert, onDelete }: Props) {
+  // Use refs so the effect never needs to re-run but always calls latest handlers
+  const onInsertRef = useRef(onInsert);
+  const onDeleteRef = useRef(onDelete);
+
+  useEffect(() => {
+    onInsertRef.current = onInsert;
+  }, [onInsert]);
+
+  useEffect(() => {
+    onDeleteRef.current = onDelete;
+  }, [onDelete]);
+
   useEffect(() => {
     const supabase = createClient();
 
     const channel = supabase
-      .channel("bookmarks-realtime")
+      .channel(`bookmarks:${userId}`)
       .on(
         "postgres_changes",
         {
@@ -25,7 +37,7 @@ export function useRealtimeBookmarks({ userId, onInsert, onDelete }: Props) {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          onInsert(payload.new as Bookmark);
+          onInsertRef.current(payload.new as Bookmark);
         }
       )
       .on(
@@ -37,14 +49,15 @@ export function useRealtimeBookmarks({ userId, onInsert, onDelete }: Props) {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          onDelete(payload.old.id as string);
+          onDeleteRef.current(payload.old.id as string);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Realtime status:", status);
+      });
 
-    // Cleanup on unmount — prevents memory leaks and duplicate subscriptions
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, onInsert, onDelete]);
+  }, [userId]); // only userId — handlers come from refs, no stale closure
 }

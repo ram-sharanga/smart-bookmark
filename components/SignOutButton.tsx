@@ -20,9 +20,14 @@ export function SignOutButton() {
     <button
       onClick={handleSignOut}
       disabled={loading}
-      className="text-muted hover:text-danger text-sm font-body font-medium transition-colors disabled:opacity-50"
+      className="text-xs font-medium px-3 py-1.5 rounded-[var(--radius-xs)] transition-all duration-200 disabled:opacity-50"
+      style={{
+        color: "var(--text-secondary)",
+        background: "var(--surface)",
+        border: "1px solid var(--border-subtle)",
+      }}
     >
-      {loading ? "Signing out…" : "Sign out"}
+      {loading ? "…" : "Sign out"}
     </button>
   );
 }

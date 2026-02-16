@@ -10,21 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        head: ["var(--font-head)"],
-        body: ["var(--font-body)"],
-      },
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        card: "var(--card)",
-        "card-border": "var(--card-border)",
-        muted: "var(--muted)",
-        accent: "var(--accent)",
-        "accent-hover": "var(--accent-hover)",
-        success: "var(--success)",
-        danger: "var(--danger)",
-        "danger-hover": "var(--danger-hover)",
-        "input-bg": "var(--input-bg)",
+        head: ["var(--font-head)", "sans-serif"],
+        body: ["var(--font-body)", "sans-serif"],
       },
     },
   },

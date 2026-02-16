@@ -3,21 +3,14 @@
 import { useEffect, useState } from "react";
 
 export type ToastType = "success" | "error" | "info";
+export type ToastMessage = { id: string; message: string; type: ToastType };
 
-export type ToastMessage = {
-  id: string;
-  message: string;
-  type: ToastType;
-};
-
-type ToastProps = {
+export function ToastContainer({ toasts, removeToast }: {
   toasts: ToastMessage[];
   removeToast: (id: string) => void;
-};
-
-export function ToastContainer({ toasts, removeToast }: ToastProps) {
+}) {
   return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full px-4">
+    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-xs w-full px-4 sm:px-0">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} removeToast={removeToast} />
       ))}
@@ -25,67 +18,41 @@ export function ToastContainer({ toasts, removeToast }: ToastProps) {
   );
 }
 
-function ToastItem({
-  toast,
-  removeToast,
-}: {
-  toast: ToastMessage;
-  removeToast: (id: string) => void;
-}) {
+function ToastItem({ toast, removeToast }: { toast: ToastMessage; removeToast: (id: string) => void }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Trigger enter animation
     const show = setTimeout(() => setVisible(true), 10);
-    // Auto-dismiss after 4 seconds
     const hide = setTimeout(() => {
       setVisible(false);
       setTimeout(() => removeToast(toast.id), 300);
     }, 4000);
-
-    return () => {
-      clearTimeout(show);
-      clearTimeout(hide);
-    };
+    return () => { clearTimeout(show); clearTimeout(hide); };
   }, [toast.id, removeToast]);
 
-  const styles = {
-    success: "bg-success text-white",
-    error: "bg-danger text-white",
-    info: "bg-card border border-card-border text-foreground",
-  };
-
-  const icons = {
-    success: "✓",
-    error: "✕",
-    info: "ℹ",
-  };
+  const config = {
+    success: { bg: "var(--success)", icon: "✓" },
+    error:   { bg: "var(--danger)",  icon: "✕" },
+    info:    { bg: "var(--accent)",  icon: "ℹ" },
+  }[toast.type];
 
   return (
     <div
-      className={`
-        flex items-center gap-3 px-4 py-3 rounded-xl shadow-[var(--shadow-md)]
-        transition-all duration-300 font-body text-sm font-medium
-        ${styles[toast.type]}
-        ${visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}
-      `}
+      onClick={() => { setVisible(false); setTimeout(() => removeToast(toast.id), 300); }}
+      className="flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all duration-300 text-white text-sm font-medium"
+      style={{
+        background: config.bg,
+        boxShadow: "var(--shadow-lg)",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0) scale(1)" : "translateY(-8px) scale(0.96)",
+      }}
     >
-      <span className="font-bold text-base leading-none">{icons[toast.type]}</span>
+      <span className="font-bold text-base">{config.icon}</span>
       <span className="flex-1">{toast.message}</span>
-      <button
-        onClick={() => {
-          setVisible(false);
-          setTimeout(() => removeToast(toast.id), 300);
-        }}
-        className="opacity-70 hover:opacity-100 transition-opacity text-base leading-none ml-1"
-      >
-        ✕
-      </button>
     </div>
   );
 }
 
-// Custom hook to manage toasts
 export function useToast() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 

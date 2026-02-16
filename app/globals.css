@@ -1,46 +1,76 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f0e17;
-  --card: #ffffff;
-  --card-border: #e5e2dc;
-  --muted: #6b6880;
-  --accent: #ff6b35;
-  --accent-hover: #e85a25;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --danger-hover: #b91c1c;
-  --input-bg: #f9f8f5;
-  --shadow-sm: 0 1px 3px rgba(15,14,23,.08);
-  --shadow-md: 0 4px 16px rgba(15,14,23,.10);
+  --bg: #f0f2f5;
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-solid: #ffffff;
+  --border: rgba(255, 255, 255, 0.9);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --text: #0d0d0d;
+  --text-secondary: #6b7280;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: rgba(99, 102, 241, 0.12);
+  --danger: #ef4444;
+  --danger-light: rgba(239, 68, 68, 0.1);
+  --success: #10b981;
+  --success-light: rgba(16, 185, 129, 0.1);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --blur: blur(20px);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
 }
 
 .dark {
-  --background: #0f0e17;
-  --foreground: #faf9f6;
-  --card: #1a1826;
-  --card-border: #2a2740;
-  --muted: #a09eb5;
-  --accent: #ff6b35;
-  --accent-hover: #e85a25;
-  --success: #4ade80;
+  --bg: #0a0a0f;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-solid: #13131a;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --text: #f5f5f7;
+  --text-secondary: #8b8fa8;
+  --accent: #818cf8;
+  --accent-hover: #6366f1;
+  --accent-light: rgba(129, 140, 248, 0.15);
   --danger: #f87171;
-  --danger-hover: #ef4444;
-  --input-bg: #13111e;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,.4);
+  --danger-light: rgba(248, 113, 113, 0.1);
+  --success: #34d399;
+  --success-light: rgba(52, 211, 153, 0.1);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-body, sans-serif);
-  transition: background-color 0.2s ease, color 0.2s ease;
+html {
+  -webkit-font-smoothing: antialiased;
 }
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+/* Glassmorphism card utility */
+.glass {
+  background: var(--surface);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-glass);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 999px; }
