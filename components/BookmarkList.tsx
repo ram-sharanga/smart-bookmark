@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Bookmark } from "@/types/bookmark";
 import { BookmarkCard } from "./BookmarkCard";
 import { useRealtimeBookmarks } from "@/hooks/useRealtimeBookmarks";
@@ -17,18 +17,38 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "alpha">("newest");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "alpha">(
+    "newest",
+  );
   const { toasts, addToast, removeToast } = useToast();
 
-  // Realtime: insert handler
-  const handleRealtimeInsert = useCallback((bookmark: Bookmark) => {
-    setBookmarks((prev) => {
-      // Avoid duplicates (in case the inserting tab also updates state)
-      if (prev.find((b) => b.id === bookmark.id)) return prev;
-      addToast("New bookmark synced from another tab!", "info");
-      return [bookmark, ...prev];
-    });
+  // Keyboard shortcut: Cmd+K or Ctrl+K to open modal
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsModalOpen(true);
+      }
+      if (e.key === "Escape") {
+        setIsModalOpen(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Realtime: insert handler
+  const handleRealtimeInsert = useCallback(
+    (bookmark: Bookmark) => {
+      setBookmarks((prev) => {
+        // Avoid duplicates (in case the inserting tab also updates state)
+        if (prev.find((b) => b.id === bookmark.id)) return prev;
+        addToast("New bookmark synced from another tab!", "info");
+        return [bookmark, ...prev];
+      });
+    },
+    [addToast],
+  );
 
   // Realtime: delete handler
   const handleRealtimeDelete = useCallback((id: string) => {
@@ -71,19 +91,19 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
         (b) =>
           b.title.toLowerCase().includes(q) ||
           b.url.toLowerCase().includes(q) ||
-          b.tags.some((t) => t.includes(q))
+          b.tags.some((t) => t.includes(q)),
       );
     }
 
     if (sortOrder === "newest") {
       result.sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
     } else if (sortOrder === "oldest") {
       result.sort(
         (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
       );
     } else if (sortOrder === "alpha") {
       result.sort((a, b) => a.title.localeCompare(b.title));
@@ -219,9 +239,7 @@ function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-      <div className="text-5xl">
-        {hasBookmarks ? "🔍" : "🔖"}
-      </div>
+      <div className="text-5xl">{hasBookmarks ? "🔍" : "🔖"}</div>
       <div>
         <p className="font-head font-bold text-lg text-foreground">
           {hasBookmarks ? "No matches found" : "No bookmarks yet"}
@@ -242,4 +260,4 @@ function EmptyState({
       )}
     </div>
   );
-}   
+}
