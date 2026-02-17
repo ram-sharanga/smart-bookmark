@@ -3,35 +3,12 @@ import Image from "next/image";
 import { SignOutButton } from "./SignOutButton";
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Logo } from "@/components/Logo";
 
 type Props = {
   email: string;
   avatarUrl?: string | null;
 };
-
-const BookmarkIcon = () => (
-  <div
-    className="w-3 h-5 shrink-0 bg-(--accent) [clip-path:polygon(0%_0%,100%_0%,100%_100%,50%_80%,0%_100%)]"
-    aria-hidden="true"
-  />
-);
-
-const Logo = () => (
-  <div className="flex items-center gap-2 select-none">
-    <BookmarkIcon />
-    <span
-      className="text-2xl leading-none"
-      style={{
-        fontFamily: "'Instrument Serif', serif",
-        fontWeight: 600,
-        color: "var(--text-1)",
-      }}
-    >
-      Book
-      <span style={{ color: "var(--accent)", fontStyle: "italic" }}>mark.</span>
-    </span>
-  </div>
-);
 
 const LiveStatus = () => (
   <div className="flex items-center gap-1.5 ml-1 select-none">
@@ -59,6 +36,8 @@ const UserMenu = ({ url, email }: { url?: string | null; email: string }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // throw new Error("Testing the dashboard error UI");
 
   return (
     <div className="relative" ref={menuRef}>

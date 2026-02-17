@@ -49,7 +49,6 @@ export default async function LoginPage() {
 
       <div className="w-full max-w-85 relative z-10">
         <div className="inline-flex items-center gap-2.5 mb-7">
-          {/* Replaced manual emoji box with your Logo component */}
           <Logo />
           
           <span
