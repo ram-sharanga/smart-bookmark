@@ -13,7 +13,7 @@ export default async function LoginPage() {
       <div style={{position:"absolute",bottom:"-60px",left:"-60px",width:"220px",height:"220px",borderRadius:"50%",background:"radial-gradient(circle,var(--accent-s),transparent 70%)",pointerEvents:"none",opacity:0.4}}/>
       <div className="w-full max-w-[340px] relative z-10">
         <div className="inline-flex items-center gap-2.5 mb-7">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{background:"var(--accent)",boxShadow:"0 2px 8px var(--accent-s)"}}>🔖</div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{background:"var(--accent)",boxShadow:"0 2px 8px var(--accent-s)"}}>0000</div>
           <span className="text-[28px]" style={{fontFamily:"'Instrument Serif',serif",color:"var(--text-1)",letterSpacing:"-0.01em"}}>Book<span style={{color:"var(--accent)",fontStyle:"italic"}}>mark.</span></span>
         </div>
         <h1 className="text-[34px] leading-tight mb-2" style={{fontFamily:"'Instrument Serif',serif",color:"var(--text-1)",letterSpacing:"-0.02em"}}>Your links,<br/><em style={{color:"var(--accent)",fontStyle:"italic"}}>beautifully</em> kept.</h1>
