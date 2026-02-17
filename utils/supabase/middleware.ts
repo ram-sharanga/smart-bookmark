@@ -25,10 +25,8 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refresh session — do not remove this, it keeps the session alive
   const { data: { user } } = await supabase.auth.getUser();
 
-  // If no user and not on a public route, redirect to login
   const isPublicRoute =
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/auth");

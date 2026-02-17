@@ -14,7 +14,6 @@ export default async function LoginPage() {
       className="min-h-screen flex items-center justify-center px-5 relative overflow-hidden"
       style={{ background: "var(--bg)" }}
     >
-      {/* Blobs */}
       <div
         style={{
           position: "absolute",
@@ -43,7 +42,6 @@ export default async function LoginPage() {
       />
 
       <div className="w-full max-w-85 relative z-10">
-        {/* Wordmark with icon */}
         <div className="inline-flex items-center gap-2.5 mb-7">
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
@@ -69,7 +67,6 @@ export default async function LoginPage() {
           </span>
         </div>
 
-        {/* Headline */}
         <h1
           className="text-[34px] leading-tight mb-2"
           style={{
@@ -93,7 +90,6 @@ export default async function LoginPage() {
           Private bookmarks. Real-time sync across every tab and device.
         </p>
 
-        {/* Card */}
         <div
           className="rounded-2xl p-5"
           style={{

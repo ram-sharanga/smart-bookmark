@@ -75,7 +75,6 @@ body {
   border-radius: 4px;
 }
 
-/* Custom pulse animation for live dot */
 @keyframes pulse-design {
 
   0%,
@@ -94,7 +93,6 @@ body {
   animation: pulse-design 2s infinite;
 }
 
-/* Focus styles for inputs */
 .search-input:focus,
 .form-input:focus,
 .tags-input-wrap:focus-within {

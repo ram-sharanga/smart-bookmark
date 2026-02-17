@@ -53,7 +53,7 @@ export async function deleteBookmark(id: string) {
 
   if (error) return { error: error.message };
 
-  // NO revalidatePath — realtime handles state for all tabs including this one
+  // NO revalidatePath - realtime handles state for all tabs including this one
   return { success: true };
 }
 
