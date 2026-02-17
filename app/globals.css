@@ -1,90 +1,56 @@
 @import "tailwindcss";
 
-/* ── LIGHT THEME (default) ── */
 :root {
-  --bg-base:        #f7f7f5;
-  --bg-subtle:      #f0f0ed;
-  --bg-card:        #ffffff;
-  --bg-card-hover:  #fefefe;
-
-  --text-primary:   #1a1a18;
-  --text-secondary: #6b6b66;
-  --text-tertiary:  #a3a39d;
-
-  --accent:         #2d9f78;
-  --accent-hover:   #268a68;
-  --accent-light:   #eef9f4;
-  --accent-shadow:  rgba(45,159,120,0.25);
-
-  --input-bg:       #f0f0ed;
-  --input-border:   #e6e6e1;
-
-  --card-border:    #eaeae5;
-  --card-shadow:    0 1px 2px rgba(26,26,24,0.05), 0 4px 12px rgba(26,26,24,0.04);
-  --card-shadow-hover: 0 2px 6px rgba(26,26,24,0.07), 0 8px 20px rgba(26,26,24,0.06);
-
-  --tag-bg:         #f0f5f3;
-  --tag-border:     #d9ede5;
-  --tag-color:      #2d9f78;
-
-  --divider:        #e6e6e1;
-  --empty-icon-bg:  #f0f0ed;
-
-  --header-bg:      rgba(247,247,245,0.92);
-  --header-border:  #e6e6e1;
-
-  --danger:         #dc2626;
-  --success:        #16a34a;
+  --bg: #f7f7f5;
+  --bg-card: #ffffff;
+  --bg-subtle: #f0f0ed;
+  --border: #e6e6e1;
+  --border-card: #eaeae5;
+  --text-1: #1a1a18;
+  --text-2: #6b6b66;
+  --text-3: #a3a39d;
+  --accent: #2d9f78;
+  --accent-l: #eef9f4;
+  --accent-s: rgba(45,159,120,.2);
+  --tag-bg: #f0f5f3;
+  --tag-col: #2d9f78;
+  --divider: #e6e6e1;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --header-bg: rgba(247,247,245,.92);
+  --input-bg: #f0f0ed;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.05), 0 4px 12px rgba(0,0,0,.04);
+  --shadow-hover: 0 2px 6px rgba(0,0,0,.07), 0 8px 20px rgba(0,0,0,.06);
+  --shadow-btn: 0 2px 8px rgba(45,159,120,.25);
 }
 
-/* ── DARK THEME ── */
 .dark {
-  --bg-base:        #0e100e;
-  --bg-subtle:      #1e201e;
-  --bg-card:        #181a18;
-  --bg-card-hover:  #1d1f1d;
-
-  --text-primary:   #f0f2f0;
-  --text-secondary: #8a8c8a;
-  --text-tertiary:  #5a5c5a;
-
-  --accent:         #3db88a;
-  --accent-hover:   #2d9f78;
-  --accent-light:   rgba(61,184,138,0.12);
-  --accent-shadow:  rgba(61,184,138,0.25);
-
-  --input-bg:       #141614;
-  --input-border:   #282a28;
-
-  --card-border:    #232523;
-  --card-shadow:    0 1px 2px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
-  --card-shadow-hover: 0 2px 6px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.4);
-
-  --tag-bg:         rgba(61,184,138,0.1);
-  --tag-border:     rgba(61,184,138,0.2);
-  --tag-color:      #3db88a;
-
-  --divider:        #282a28;
-  --empty-icon-bg:  #1e201e;
-
-  --header-bg:      rgba(14,16,14,0.92);
-  --header-border:  #282a28;
-
-  --danger:         #f87171;
-  --success:        #4ade80;
+  --bg: #0e100e;
+  --bg-card: #181a18;
+  --bg-subtle: #1e201e;
+  --border: #282a28;
+  --border-card: #232523;
+  --text-1: #f0f2f0;
+  --text-2: #8a8c8a;
+  --text-3: #5a5c5a;
+  --accent: #3db88a;
+  --accent-l: rgba(61,184,138,.12);
+  --accent-s: rgba(61,184,138,.25);
+  --tag-bg: rgba(61,184,138,.1);
+  --tag-col: #3db88a;
+  --divider: #282a28;
+  --success: #4ade80;
+  --danger: #f87171;
+  --header-bg: rgba(14,16,14,.92);
+  --input-bg: #141614;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
+  --shadow-hover: 0 2px 6px rgba(0,0,0,.5), 0 8px 20px rgba(0,0,0,.4);
+  --shadow-btn: 0 2px 8px rgba(61,184,138,.3);
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-
-body {
-  background: var(--bg-base);
-  color: var(--text-primary);
-  font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
-  min-height: 100vh;
-  transition: background 0.25s ease, color 0.25s ease;
-}
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 4px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{background:var(--bg);color:var(--text-1);font-family:'Geist',sans-serif;min-height:100vh;transition:background .25s,color .25s}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--divider);border-radius:4px}
