@@ -9,77 +9,86 @@ export default async function LoginPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center px-5"
+      className="min-h-screen flex flex-col items-center justify-center px-5 relative overflow-hidden"
       style={{ background: "var(--bg-base)" }}
     >
-      {/* Subtle top grain texture */}
+      {/* Subtle blobs */}
       <div
-        className="fixed inset-0 pointer-events-none opacity-[0.015]"
+        className="absolute -top-20 -right-20 w-72 h-72 rounded-full pointer-events-none opacity-60"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          backgroundSize: "200px 200px",
+          background: "radial-gradient(circle, var(--accent-shadow) 0%, transparent 70%)",
+        }}
+      />
+      <div
+        className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full pointer-events-none opacity-40"
+        style={{
+          background: "radial-gradient(circle, var(--accent-shadow) 0%, transparent 70%)",
         }}
       />
 
-      <div className="w-full max-w-[400px] relative">
-
+      <div className="w-full max-w-[340px] relative z-10">
         {/* Wordmark */}
-        <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 mb-6">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-              style={{ background: "var(--accent)", boxShadow: "0 4px 16px var(--accent-shadow)" }}
-            >
-              🔖
-            </div>
-          </div>
-          <h1
-            className="text-5xl leading-[1.1] tracking-tight mb-3"
+        <div className="inline-flex items-center gap-2.5 mb-7">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
             style={{
-              fontFamily: "var(--font-head)",
-              fontWeight: 600,
-              color: "var(--text-primary)",
+              background: "var(--accent)",
+              boxShadow: "0 2px 8px var(--accent-shadow)",
             }}
           >
-            Your links,<br />
-            <em style={{ color: "var(--accent)", fontStyle: "italic" }}>beautifully</em> kept.
-          </h1>
-          <p className="text-sm leading-relaxed" style={{ color: "var(--text-tertiary)" }}>
-            Private bookmarks. Real-time sync. Nothing else.
-          </p>
+            🔖
+          </div>
+          <span
+            className="text-[28px] tracking-tight"
+            style={{
+              fontFamily: "'Instrument Serif', serif",
+              color: "var(--text-primary)",
+              fontWeight: 500,
+            }}
+          >
+            Book<span style={{ color: "var(--accent)", fontStyle: "italic" }}>mark.</span>
+          </span>
         </div>
 
-        {/* Login card */}
+        {/* Headline */}
+        <h1
+          className="text-[34px] leading-[1.1] tracking-tight mb-2"
+          style={{
+            fontFamily: "'Instrument Serif', serif",
+            color: "var(--text-primary)",
+            fontWeight: 500,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          Your links,<br />
+          <em style={{ color: "var(--accent)", fontStyle: "italic" }}>beautifully</em> kept.
+        </h1>
+
+        <p className="text-sm mb-8" style={{ color: "var(--text-secondary)", lineHeight: "1.5" }}>
+          Private bookmarks. Real-time sync across every tab and device.
+        </p>
+
+        {/* Card */}
         <div
-          className="rounded-2xl p-6"
+          className="rounded-2xl p-5"
           style={{
             background: "var(--bg-card)",
             border: "1px solid var(--card-border)",
             boxShadow: "var(--card-shadow)",
           }}
         >
-          <p
-            className="text-xs font-semibold uppercase tracking-widest mb-4"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            Continue with
-          </p>
           <LoginButton />
           <div
-            className="mt-5 pt-5 text-center text-xs leading-relaxed"
+            className="mt-3.5 pt-3.5 text-center text-xs"
             style={{
               borderTop: "1px solid var(--divider)",
               color: "var(--text-tertiary)",
+              lineHeight: "1.5",
             }}
           >
-            No password needed. Sign in once, stay forever.
+            No password. Google OAuth only.
           </div>
         </div>
-
-        {/* Bottom note */}
-        <p className="text-center text-xs mt-6" style={{ color: "var(--text-tertiary)" }}>
-          Private by default — only you see your bookmarks.
-        </p>
       </div>
     </main>
   );

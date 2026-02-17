@@ -21,19 +21,32 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
 
   useEffect(() => {
     if (isOpen) setTimeout(() => urlInputRef.current?.focus(), 80);
-    else { setUrl(""); setTitle(""); setTagInput(""); setTags([]); setLoading(false); }
+    else {
+      setUrl("");
+      setTitle("");
+      setTagInput("");
+      setTags([]);
+      setLoading(false);
+    }
   }, [isOpen]);
 
   async function handleUrlBlur() {
     if (!url || title) return;
-    try { new URL(url); } catch { return; }
+    try {
+      new URL(url);
+    } catch {
+      return;
+    }
     setFetchingTitle(true);
     try {
       const res = await fetch(`/api/fetch-title?url=${encodeURIComponent(url)}`);
       const data = await res.json();
       if (data.title) setTitle(data.title);
-    } catch { /* silent */ }
-    finally { setFetchingTitle(false); }
+    } catch {
+      /* silent */
+    } finally {
+      setFetchingTitle(false);
+    }
   }
 
   function handleTagKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -66,7 +79,7 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
     border: "1.5px solid var(--input-border)",
     borderRadius: "10px",
     color: "var(--text-primary)",
-    fontFamily: "var(--font-body)",
+    fontFamily: "'Geist', sans-serif",
     width: "100%",
     padding: "10px 14px",
     fontSize: "14px",
@@ -74,15 +87,15 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
     transition: "border-color 0.15s ease",
   };
 
-  const labelStyle = {
+  const labelStyle: React.CSSProperties = {
     display: "block",
     fontSize: "11px",
     fontWeight: 600,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase" as const,
+    letterSpacing: "0.07em",
+    textTransform: "uppercase",
     color: "var(--text-tertiary)",
     marginBottom: "6px",
-    fontFamily: "var(--font-body)",
+    fontFamily: "'Geist', sans-serif",
   };
 
   return (
@@ -90,29 +103,25 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-40"
-        style={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(4px)" }}
+        style={{
+          background: "rgba(0,0,0,0.3)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
+        }}
         onClick={onClose}
       />
 
-      {/* Modal — bottom sheet on mobile, centered on desktop */}
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+      {/* Modal */}
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div
-          className="w-full sm:max-w-md"
+          className="w-full sm:max-w-md rounded-t-[20px] sm:rounded-[20px] p-6"
           style={{
             background: "var(--bg-card)",
             border: "1px solid var(--card-border)",
-            borderRadius: "20px 20px 0 0",
-            boxShadow: "0 -4px 40px rgba(0,0,0,0.12)",
-            padding: "24px",
-          }}
-          // Desktop — round all corners
-          ref={(el) => {
-            if (el && window.innerWidth >= 640) {
-              el.style.borderRadius = "20px";
-            }
+            boxShadow: "0 -8px 40px rgba(0,0,0,0.15)",
           }}
         >
-          {/* Mobile drag handle */}
+          {/* Handle (mobile only) */}
           <div
             className="w-9 h-1 mx-auto rounded-full mb-5 sm:hidden"
             style={{ background: "var(--divider)" }}
@@ -122,7 +131,10 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
           <div className="flex items-center justify-between mb-5">
             <h2
               className="text-lg font-semibold"
-              style={{ fontFamily: "var(--font-head)", color: "var(--text-primary)" }}
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                color: "var(--text-primary)",
+              }}
             >
               Add a bookmark
             </h2>
@@ -140,8 +152,7 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-4">
-
+            <div className="flex flex-col gap-3.5">
               {/* URL */}
               <div>
                 <label style={labelStyle}>URL</label>
@@ -164,8 +175,16 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
                 <label style={labelStyle}>
                   Title
                   {fetchingTitle && (
-                    <span style={{ color: "var(--accent)", fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>
-                      {" "}— fetching…
+                    <span
+                      style={{
+                        color: "var(--accent)",
+                        fontWeight: 400,
+                        textTransform: "none",
+                        letterSpacing: 0,
+                      }}
+                    >
+                      {" "}
+                      — fetching…
                     </span>
                   )}
                 </label>
@@ -185,8 +204,15 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
               <div>
                 <label style={labelStyle}>
                   Tags
-                  <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>
-                    {" "}— Enter or comma to add
+                  <span
+                    style={{
+                      fontWeight: 400,
+                      textTransform: "none",
+                      letterSpacing: 0,
+                    }}
+                  >
+                    {" "}
+                    — Enter or comma to add
                   </span>
                 </label>
                 <div
@@ -212,7 +238,9 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
                         type="button"
                         onClick={() => setTags(tags.filter((t) => t !== tag))}
                         className="opacity-60 hover:opacity-100 leading-none"
-                      >✕</button>
+                      >
+                        ✕
+                      </button>
                     </span>
                   ))}
                   <input
@@ -222,13 +250,16 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
                     onKeyDown={handleTagKeyDown}
                     placeholder={tags.length === 0 ? "design, productivity, dev…" : ""}
                     className="flex-1 min-w-[80px] bg-transparent text-sm outline-none"
-                    style={{ color: "var(--text-primary)", fontFamily: "var(--font-body)" }}
+                    style={{
+                      color: "var(--text-primary)",
+                      fontFamily: "'Geist', sans-serif",
+                    }}
                   />
                 </div>
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-2.5 pt-1">
+              <div className="flex gap-2 pt-1">
                 <button
                   type="button"
                   onClick={onClose}
@@ -237,7 +268,7 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
                     background: "var(--bg-subtle)",
                     color: "var(--text-secondary)",
                     border: "1px solid var(--divider)",
-                    fontFamily: "var(--font-body)",
+                    fontFamily: "'Geist', sans-serif",
                   }}
                 >
                   Cancel
@@ -248,14 +279,18 @@ export function AddBookmarkModal({ isOpen, onClose, onSuccess, onError }: Props)
                   className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
                   style={{
                     background: "var(--accent)",
-                    boxShadow: "0 2px 12px var(--accent-shadow)",
-                    fontFamily: "var(--font-body)",
+                    boxShadow: "0 2px 8px var(--accent-shadow)",
+                    fontFamily: "'Geist', sans-serif",
+                    border: "none",
                   }}
                 >
                   {loading && (
                     <span
                       className="w-4 h-4 border-2 rounded-full animate-spin"
-                      style={{ borderColor: "rgba(255,255,255,0.3)", borderTopColor: "white" }}
+                      style={{
+                        borderColor: "rgba(255,255,255,0.3)",
+                        borderTopColor: "white",
+                      }}
                     />
                   )}
                   {loading ? "Saving…" : "Save bookmark"}

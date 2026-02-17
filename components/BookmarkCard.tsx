@@ -13,12 +13,17 @@ type Props = {
 function getFaviconUrl(url: string) {
   try {
     return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 function getDomain(url: string) {
-  try { return new URL(url).hostname.replace("www.", ""); }
-  catch { return url; }
+  try {
+    return new URL(url).hostname.replace("www.", "");
+  } catch {
+    return url;
+  }
 }
 
 function timeAgo(dateStr: string) {
@@ -37,6 +42,7 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
   const [deleting, setDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [faviconError, setFaviconError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const favicon = getFaviconUrl(bookmark.url);
 
   async function handleDelete() {
@@ -53,25 +59,20 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
 
   return (
     <div
-      className="group relative flex items-start gap-3 p-4 transition-all duration-150"
+      className="group relative flex items-start gap-3 p-3.5 transition-all duration-150 cursor-default"
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--card-border)",
-        borderRadius: "var(--radius-card)",
-        boxShadow: "var(--card-shadow)",
+        borderRadius: "12px",
+        boxShadow: isHovered ? "var(--card-shadow-hover)" : "var(--card-shadow)",
+        borderColor: isHovered ? "var(--accent-shadow)" : "var(--card-border)",
       }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "var(--card-shadow-hover)";
-        (e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent-shadow)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "var(--card-shadow)";
-        (e.currentTarget as HTMLDivElement).style.borderColor = "var(--card-border)";
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Favicon */}
       <div
-        className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 overflow-hidden"
+        className="w-[34px] h-[34px] rounded-lg flex items-center justify-center shrink-0 overflow-hidden"
         style={{
           background: "var(--bg-subtle)",
           border: "1px solid var(--divider)",
@@ -91,7 +92,7 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
         ) : (
           <span
             className="text-xs font-bold"
-            style={{ color: "var(--accent)", fontFamily: "var(--font-head)" }}
+            style={{ color: "var(--accent)", fontFamily: "'Instrument Serif', serif" }}
           >
             {bookmark.title.charAt(0).toUpperCase()}
           </span>
@@ -107,7 +108,8 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
           className="block text-sm font-medium truncate mb-0.5 transition-colors duration-100"
           style={{
             color: "var(--text-primary)",
-            fontFamily: "var(--font-body)",
+            fontFamily: "'Geist', sans-serif",
+            textDecoration: "none",
           }}
           onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.color = "var(--accent)")}
           onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.color = "var(--text-primary)")}
@@ -127,14 +129,14 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
 
         {/* Tags */}
         {bookmark.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
+          <div className="flex flex-wrap gap-1 mt-1.5">
             {bookmark.tags.map((tag) => (
               <span
                 key={tag}
                 className="text-xs font-medium px-2 py-0.5 rounded-full"
                 style={{
                   background: "var(--tag-bg)",
-                  color: "var(--text-secondary)",
+                  color: "var(--tag-color)",
                   border: "1px solid var(--tag-border)",
                 }}
               >
@@ -145,8 +147,11 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
         )}
       </div>
 
-      {/* Actions — always visible on mobile, hover on desktop */}
-      <div className="flex items-center gap-1 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150">
+      {/* Actions */}
+      <div
+        className="flex items-center gap-0.5 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-150"
+        style={{ alignItems: "center" }}
+      >
         {!showConfirm ? (
           <>
             <a
@@ -156,7 +161,7 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
               className="w-7 h-7 flex items-center justify-center rounded-lg text-xs transition-all duration-150"
               style={{ color: "var(--text-tertiary)", background: "transparent" }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "var(--bg-subtle)";
+                (e.currentTarget as HTMLAnchorElement).style.background = "var(--accent-light)";
                 (e.currentTarget as HTMLAnchorElement).style.color = "var(--accent)";
               }}
               onMouseLeave={(e) => {
@@ -170,9 +175,9 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
             <button
               onClick={() => setShowConfirm(true)}
               className="w-7 h-7 flex items-center justify-center rounded-lg text-xs transition-all duration-150"
-              style={{ color: "var(--text-tertiary)", background: "transparent" }}
+              style={{ color: "var(--text-tertiary)", background: "transparent", border: "none" }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "var(--bg-subtle)";
+                (e.currentTarget as HTMLButtonElement).style.background = "rgba(220,38,38,0.1)";
                 (e.currentTarget as HTMLButtonElement).style.color = "var(--danger)";
               }}
               onMouseLeave={(e) => {

@@ -24,7 +24,8 @@ export function SignOutButton() {
       style={{
         background: "transparent",
         color: "var(--text-tertiary)",
-        fontFamily: "var(--font-body)",
+        fontFamily: "'Geist', sans-serif",
+        border: "none",
       }}
       onMouseEnter={(e) => {
         (e.target as HTMLButtonElement).style.color = "var(--danger)";

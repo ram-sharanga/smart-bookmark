@@ -11,7 +11,11 @@ type Props = {
 };
 
 function useIsMounted() {
-  return useSyncExternalStore(() => () => {}, () => true, () => false);
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 }
 
 export function DashboardHeader({ email, avatarUrl, bookmarkCount }: Props) {
@@ -24,35 +28,46 @@ export function DashboardHeader({ email, avatarUrl, bookmarkCount }: Props) {
       style={{
         background: "var(--header-bg)",
         borderBottom: "1px solid var(--header-border)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
       }}
     >
       <div
-        className="max-w-2xl mx-auto px-4 sm:px-6 flex items-center justify-between"
-        style={{ height: "56px" }}
+        className="max-w-2xl mx-auto px-5 flex items-center justify-between gap-3"
+        style={{ height: "52px" }}
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5">
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-base"
-            style={{ background: "var(--accent)", boxShadow: "0 2px 8px var(--accent-shadow)" }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-sm"
+            style={{
+              background: "var(--accent)",
+              boxShadow: "0 2px 8px var(--accent-shadow)",
+            }}
           >
             🔖
           </div>
           <span
             className="text-lg tracking-tight"
-            style={{ fontFamily: "var(--font-head)", fontWeight: 600, color: "var(--text-primary)" }}
+            style={{
+              fontFamily: "'Instrument Serif', serif",
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              letterSpacing: "-0.01em",
+            }}
           >
-            Bookmark<span style={{ color: "var(--accent)" }}>.</span>
+            Book<span style={{ color: "var(--accent)", fontStyle: "italic" }}>mark.</span>
           </span>
+
           {/* Live indicator */}
           <div className="flex items-center gap-1.5 ml-1">
             <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse"
-              style={{ background: "var(--success)", display: "inline-block" }}
+              className="w-1.5 h-1.5 rounded-full animate-pulse inline-block"
+              style={{ background: "var(--success)" }}
             />
-            <span className="text-xs hidden sm:block" style={{ color: "var(--text-tertiary)" }}>live</span>
+            <span className="text-[11px] hidden sm:block" style={{ color: "var(--text-tertiary)" }}>
+              live
+            </span>
           </div>
         </div>
 
@@ -73,12 +88,17 @@ export function DashboardHeader({ email, avatarUrl, bookmarkCount }: Props) {
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-150"
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-150 text-sm"
               style={{
                 background: "var(--bg-subtle)",
                 border: "1px solid var(--divider)",
                 color: "var(--text-tertiary)",
-                fontSize: "14px",
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLButtonElement).style.borderColor = "var(--accent)";
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLButtonElement).style.borderColor = "var(--divider)";
               }}
               title="Toggle theme"
             >

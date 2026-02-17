@@ -1,100 +1,90 @@
 @import "tailwindcss";
 
-/* ─── LIGHT THEME (default) ──────────────────────── */
+/* ── LIGHT THEME (default) ── */
 :root {
-  --bg-base:        #faf9f7;
-  --bg-subtle:      #f4f2ee;
+  --bg-base:        #f7f7f5;
+  --bg-subtle:      #f0f0ed;
   --bg-card:        #ffffff;
   --bg-card-hover:  #fefefe;
 
-  --text-primary:   #1a1916;
-  --text-secondary: #6b6560;
-  --text-tertiary:  #9e9890;
+  --text-primary:   #1a1a18;
+  --text-secondary: #6b6b66;
+  --text-tertiary:  #a3a39d;
 
-  --accent:         #e8572a;
-  --accent-hover:   #d14a20;
-  --accent-light:   #fff1ec;
-  --accent-shadow:  rgba(232,87,42,0.25);
+  --accent:         #2d9f78;
+  --accent-hover:   #268a68;
+  --accent-light:   #eef9f4;
+  --accent-shadow:  rgba(45,159,120,0.25);
 
-  --input-bg:       #f4f2ee;
-  --input-border:   #e8e4de;
-  --input-focus:    #e8572a;
+  --input-bg:       #f0f0ed;
+  --input-border:   #e6e6e1;
 
-  --card-border:    #ede9e3;
-  --card-shadow:    0 1px 4px rgba(26,25,22,0.06), 0 4px 16px rgba(26,25,22,0.04);
-  --card-shadow-hover: 0 2px 8px rgba(26,25,22,0.08), 0 8px 24px rgba(26,25,22,0.06);
+  --card-border:    #eaeae5;
+  --card-shadow:    0 1px 2px rgba(26,26,24,0.05), 0 4px 12px rgba(26,26,24,0.04);
+  --card-shadow-hover: 0 2px 6px rgba(26,26,24,0.07), 0 8px 20px rgba(26,26,24,0.06);
 
-  --tag-bg:         #f0ede8;
-  --tag-border:     #e0dbd3;
+  --tag-bg:         #f0f5f3;
+  --tag-border:     #d9ede5;
+  --tag-color:      #2d9f78;
 
-  --divider:        #ede9e3;
-  --empty-icon-bg:  #f0ede8;
+  --divider:        #e6e6e1;
+  --empty-icon-bg:  #f0f0ed;
 
-  --header-bg:      rgba(250,249,247,0.85);
-  --header-border:  #ede9e3;
+  --header-bg:      rgba(247,247,245,0.92);
+  --header-border:  #e6e6e1;
 
   --danger:         #dc2626;
   --success:        #16a34a;
-
-  --font-head:      'Fraunces', Georgia, serif;
-  --font-body:      'Inter', -apple-system, sans-serif;
-
-  --radius-card:    14px;
-  --radius-input:   10px;
-  --radius-btn:     10px;
-  --radius-pill:    999px;
-  --radius-icon:    10px;
 }
 
-/* ─── DARK THEME ─────────────────────────────────── */
+/* ── DARK THEME ── */
 .dark {
-  --bg-base:        #141210;
-  --bg-subtle:      #1c1916;
-  --bg-card:        #1f1c19;
-  --bg-card-hover:  #242019;
+  --bg-base:        #0e100e;
+  --bg-subtle:      #1e201e;
+  --bg-card:        #181a18;
+  --bg-card-hover:  #1d1f1d;
 
-  --text-primary:   #f0ede8;
-  --text-secondary: #a09890;
-  --text-tertiary:  #6e6660;
+  --text-primary:   #f0f2f0;
+  --text-secondary: #8a8c8a;
+  --text-tertiary:  #5a5c5a;
 
-  --accent:         #f06840;
-  --accent-hover:   #e8572a;
-  --accent-light:   rgba(240,104,64,0.12);
-  --accent-shadow:  rgba(240,104,64,0.20);
+  --accent:         #3db88a;
+  --accent-hover:   #2d9f78;
+  --accent-light:   rgba(61,184,138,0.12);
+  --accent-shadow:  rgba(61,184,138,0.25);
 
-  --input-bg:       #1a1714;
-  --input-border:   #2e2a25;
-  --input-focus:    #f06840;
+  --input-bg:       #141614;
+  --input-border:   #282a28;
 
-  --card-border:    #2a2520;
-  --card-shadow:    0 1px 4px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
-  --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+  --card-border:    #232523;
+  --card-shadow:    0 1px 2px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
+  --card-shadow-hover: 0 2px 6px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.4);
 
-  --tag-bg:         rgba(240,104,64,0.1);
-  --tag-border:     rgba(240,104,64,0.2);
+  --tag-bg:         rgba(61,184,138,0.1);
+  --tag-border:     rgba(61,184,138,0.2);
+  --tag-color:      #3db88a;
 
-  --divider:        #2a2520;
-  --empty-icon-bg:  #252118;
+  --divider:        #282a28;
+  --empty-icon-bg:  #1e201e;
 
-  --header-bg:      rgba(20,18,16,0.90);
-  --header-border:  #2a2520;
+  --header-bg:      rgba(14,16,14,0.92);
+  --header-border:  #282a28;
 
   --danger:         #f87171;
   --success:        #4ade80;
 }
 
-/* ─── RESET & BASE ───────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 body {
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: var(--font-body);
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
   transition: background 0.25s ease, color 0.25s ease;
 }
 
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 999px; }
+::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 4px; }

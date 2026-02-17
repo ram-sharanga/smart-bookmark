@@ -6,7 +6,9 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
   const { data: bookmarks, error } = await fetchBookmarks();
@@ -19,19 +21,19 @@ export default async function DashboardPage() {
         avatarUrl={avatarUrl}
         bookmarkCount={bookmarks?.length ?? 0}
       />
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-2xl mx-auto px-5 py-7">
         {/* Page heading */}
-        <div className="mb-7">
+        <div className="mb-6">
           <h1
-            className="text-3xl mb-1"
+            className="text-[30px] mb-1 leading-tight"
             style={{
-              fontFamily: "var(--font-head)",
-              fontWeight: 600,
+              fontFamily: "'Instrument Serif', serif",
+              fontWeight: 500,
               color: "var(--text-primary)",
               letterSpacing: "-0.02em",
             }}
           >
-            Your collection
+            Your collection<span style={{ color: "var(--accent)", fontStyle: "italic" }}>.</span>
           </h1>
           <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
             Everything you&apos;ve saved, always in sync.
@@ -50,10 +52,7 @@ export default async function DashboardPage() {
             Failed to load bookmarks: {error}
           </div>
         ) : (
-          <BookmarkList
-            initialBookmarks={bookmarks ?? []}
-            userId={user.id}
-          />
+          <BookmarkList initialBookmarks={bookmarks ?? []} userId={user.id} />
         )}
       </main>
     </div>
