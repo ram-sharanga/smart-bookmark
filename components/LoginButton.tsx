@@ -4,16 +4,18 @@ import { useState } from "react";
 
 export function LoginButton() {
   const [loading, setLoading] = useState(false);
+
   async function handleLogin() {
     setLoading(true);
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/confirm`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
   }
+
   return (
     <button
       onClick={handleLogin}
