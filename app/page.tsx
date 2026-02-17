@@ -99,16 +99,6 @@ export default async function LoginPage() {
           }}
         >
           <LoginButton />
-          <div
-            className="mt-3.5 pt-3.5 text-center text-xs"
-            style={{
-              borderTop: "1px solid var(--divider)",
-              color: "var(--text-3)",
-              lineHeight: 1.5,
-            }}
-          >
-            No password. Google OAuth only.
-          </div>
         </div>
       </div>
     </main>
