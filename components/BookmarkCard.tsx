@@ -10,6 +10,8 @@ type Props = {
   onError: (msg: string) => void;
 };
 
+// --- Sub-Components ---
+
 const DeleteConfirmModal = ({
   isOpen,
   onClose,
@@ -23,7 +25,8 @@ const DeleteConfirmModal = ({
 }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+    // Updated z-index to 999 to ensure it covers headers/navs
+    <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-(--bg-card) border border-(--border) p-6 rounded-2xl shadow-2xl max-w-xs w-full mx-4 animate-in zoom-in-95 duration-200">
         <h3 className="text-lg font-serif font-bold text-(--text-1) mb-2">
           Delete Bookmark?
@@ -51,19 +54,38 @@ const DeleteConfirmModal = ({
   );
 };
 
-const getFaviconUrl = (url: string) => {
-  try {
-    const hostname = new URL(url).hostname;
-    return `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
-  } catch {
-    return null;
-  }
+const CardFavicon = ({ url, title }: { url: string; title: string }) => {
+  const [error, setError] = useState(false);
+  const hostname = new URL(url).hostname;
+  const src = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+
+  return (
+    <div className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-(--bg-subtle) border border-(--divider) relative p-3">
+      {!error ? (
+        <div className="relative w-full h-full">
+          <Image
+            src={src}
+            alt=""
+            fill
+            unoptimized
+            className="object-contain"
+            onError={() => setError(true)}
+          />
+        </div>
+      ) : (
+        <span className="text-xl font-bold text-(--accent) font-serif">
+          {title.charAt(0).toUpperCase()}
+        </span>
+      )}
+    </div>
+  );
 };
+
+// --- Main Component ---
 
 export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [faviconError, setFaviconError] = useState(false);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -77,34 +99,15 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
     }
   };
 
-  const handleCardClick = () => {
-    window.open(bookmark.url, "_blank", "noopener,noreferrer");
-  };
-
   return (
     <>
       <div
-        onClick={handleCardClick}
+        onClick={() =>
+          window.open(bookmark.url, "_blank", "noopener,noreferrer")
+        }
         className="group relative flex items-center gap-4 p-3.5 h-25 w-full bg-(--bg-card) border border-(--border-card) rounded-xl transition-all hover:border-(--accent-s) hover:-translate-y-0.5 hover:shadow-(--shadow-hover) shadow-(--shadow-card) cursor-pointer"
       >
-        <div className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-(--bg-subtle) border border-(--divider) relative p-3">
-          {getFaviconUrl(bookmark.url) && !faviconError ? (
-            <div className="relative w-full h-full">
-              <Image
-                src={getFaviconUrl(bookmark.url)!}
-                alt=""
-                fill
-                unoptimized
-                className="object-contain"
-                onError={() => setFaviconError(true)}
-              />
-            </div>
-          ) : (
-            <span className="text-xl font-bold text-(--accent) font-serif">
-              {bookmark.title.charAt(0).toUpperCase()}
-            </span>
-          )}
-        </div>
+        <CardFavicon url={bookmark.url} title={bookmark.title} />
 
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-(--text-1) truncate leading-tight mb-1">
@@ -131,17 +134,20 @@ export function BookmarkCard({ bookmark, onDelete, onError }: Props) {
           </div>
         </div>
 
+        {/* Updated Delete Button: Visible on mobile, hover-only on desktop */}
         <button
           onClick={(e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Stops the card from opening the link
             setShowModal(true);
           }}
-          className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/10 text-(--text-3) hover:text-red-500"
+          className="relative z-10 p-2 rounded-lg transition-all 
+                     opacity-100 sm:opacity-0 sm:group-hover:opacity-100 
+                     hover:bg-red-500/10 text-(--text-3) hover:text-red-500 shrink-0"
           title="Delete Bookmark"
         >
           <svg
-            width="18"
-            height="18"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

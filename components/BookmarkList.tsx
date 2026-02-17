@@ -186,49 +186,26 @@ export function BookmarkList({ initialBookmarks, userId }: Props) {
     const supabase = createClient();
 
     const channel = supabase
-      .channel(`realtime-bookmarks-${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "bookmarks",
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => {
-          const newBookmark = payload.new as Bookmark;
-
-          setBookmarks((prev) => {
-            const exists = prev.some((b) => b.id === newBookmark.id);
-            if (exists) return prev;
-
-            return [newBookmark, ...prev];
-          });
-
-          addToast("Sync: New bookmark added", "success");
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "bookmarks",
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => {
-          setBookmarks((prev) => prev.filter((b) => b.id !== payload.old.id));
-        },
-      )
+      .channel(`bookmarks:${userId}`)
+      .on("broadcast", { event: "INSERT" }, (payload) => {
+        const newBookmark = payload.payload as Bookmark;
+        setBookmarks((prev) => {
+          if (prev.some((b) => b.id === newBookmark.id)) return prev;
+          return [newBookmark, ...prev];
+        });
+      })
+      .on("broadcast", { event: "DELETE" }, (payload) => {
+        const { id } = payload.payload as { id: string };
+        setBookmarks((prev) => prev.filter((b) => b.id !== id));
+      })
       .subscribe((status) => {
-        console.log("Realtime Status:", status);
+        console.log("Realtime:", status);
       });
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, addToast]);
-
+  }, [userId]);
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
