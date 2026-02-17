@@ -55,3 +55,36 @@ create table public.bookmarks (
 ```
 
 Row Level Security is enabled - users can only access their own bookmarks.
+
+# Learning (what broke, how it was fixed)
+
+**Stack:** Next.js 15 App Router · TypeScript · Tailwind CSS · Supabase (Auth + DB + Realtime) · Vercel
+
+I've previously worked with Next.js and OAuth so there were no doubts there.
+
+But with Supabase Realtime Websockets (for updates across tabs / devices) I had some doubts.
+
+Previously, I have experience using tanstack query to invalidate cache which will re-fetch the latest updates and the update is done across pages wherever previous stale resource has been found (by query key).
+
+But this time, the need is quite similar but different in it that:
+Change in DB => PUSH to all user instances 
+
+```ts
+  await supabase.channel(`bookmarks:${user.id}`).send({
+    type: "broadcast",
+    event: "INSERT",
+    payload: data,
+  });
+```
+
+Similarly, for delete
+
+```ts
+  await supabase.channel(`bookmarks:${user.id}`).send({
+    type: "broadcast",
+    event: "DELETE",
+    payload: { id },
+  });
+```
+
+The authorization part here is enforced via RLS policies.
