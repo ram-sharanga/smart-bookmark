@@ -51,19 +51,6 @@ export default async function LoginPage() {
         <div className="inline-flex items-center gap-2.5 mb-7">
           <Logo />
           
-          <span
-            className="text-[28px]"
-            style={{
-              fontFamily: "'Instrument Serif',serif",
-              color: "var(--text-1)",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Book
-            <span style={{ color: "var(--accent)", fontStyle: "italic" }}>
-              mark.
-            </span>
-          </span>
         </div>
 
         <h1
