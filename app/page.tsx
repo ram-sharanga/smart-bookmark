@@ -1,6 +1,8 @@
 import { LoginButton } from "@/components/LoginButton";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Logo } from "@/components/Logo";
 
 export default async function LoginPage() {
   const supabase = await createClient();
@@ -14,6 +16,10 @@ export default async function LoginPage() {
       className="min-h-screen flex items-center justify-center px-5 relative overflow-hidden"
       style={{ background: "var(--bg)" }}
     >
+      <div className="absolute top-6 right-6 z-50">
+        <ThemeToggle />
+      </div>
+
       <div
         style={{
           position: "absolute",
@@ -43,15 +49,9 @@ export default async function LoginPage() {
 
       <div className="w-full max-w-85 relative z-10">
         <div className="inline-flex items-center gap-2.5 mb-7">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
-            style={{
-              background: "var(--accent)",
-              boxShadow: "0 2px 8px var(--accent-s)",
-            }}
-          >
-            🔖
-          </div>
+          {/* Replaced manual emoji box with your Logo component */}
+          <Logo />
+          
           <span
             className="text-[28px]"
             style={{
