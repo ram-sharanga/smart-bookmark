@@ -98,3 +98,16 @@ The authorization part here is enforced via RLS policies.
 
 Besides that, I spent time on understanding the supabse utilities and documentation for proxy, createServerClient and createBrowserClient, their implications and why they are configured the way they are.
 
+### Tinkering around with supabase libraries
+
+I experimented with supabase utilities and created a simple HTML, JS file using supabase js cdn to check out how supabase client utilities actually work.
+You can find the link to that repository [here](https://github.com/ram-sharanga/smart-bookmark-concepts)
+
+## Learning by Doing
+
+I applied all the concepts in another project of mine ClickSync ![Alt text](image_filename.extension)
+
+Here I applied once again the google OAuth, RLS on supabase table, Policies, Broadcast - realtime etc.
+
+
+
