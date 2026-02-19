@@ -4,6 +4,12 @@ A private, real-time bookmark manager built with Next.js, Supabase, and Tailwind
 
 🔗 **Live URL:** https://smart-bookmark-nine-nu.vercel.app/
 
+## Mobile optimised (iOS, Android) with dark and light themes
+
+![dark theme app](dark.jpeg)
+![light theme app](light.jpeg)
+
+
 ## Tech Stack
 
 - **Next.js 14** (App Router) - React framework with server components
