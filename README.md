@@ -7,12 +7,12 @@ A private, real-time bookmark manager built with Next.js, Supabase, and Tailwind
 ## Mobile optimised (iOS, Android) with dark and light themes
 
 <p align="center">
-  <img src="light.jpeg" width="300" height="500">
+  <div style="display: flex; justify-content: center; gap: 40px;">
+    <img src="light.jpeg" height="600" style="border-radius: 20px;">
+    <img src="dark.jpeg" height="600" style="border-radius: 20px;">
+  </div>
 </p>
 
-<p align="center">
-  <img src="dark.jpeg" width="300" height="500">
-</p>
 
 ## Tech Stack
 
