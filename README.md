@@ -6,9 +6,13 @@ A private, real-time bookmark manager built with Next.js, Supabase, and Tailwind
 
 ## Mobile optimised (iOS, Android) with dark and light themes
 
-![dark theme app](dark.jpeg)
-![light theme app](light.jpeg)
+<p align="center">
+  <img src="light.jpeg" width="500">
+</p>
 
+<p align="center">
+  <img src="dark.jpeg" width="500">
+</p>
 
 ## Tech Stack
 
