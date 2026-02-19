@@ -88,3 +88,7 @@ Similarly, for delete
 ```
 
 The authorization part here is enforced via RLS policies.
+
+
+Besides that, I spent time on understanding the supabse utilities and documentation for proxy, createServerClient and createBrowserClient, their implications and why they are configured the way they are.
+
