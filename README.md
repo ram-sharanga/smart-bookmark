@@ -105,7 +105,8 @@ You can find the link to that repository [here](https://github.com/ram-sharanga/
 
 ## Learning by Doing
 
-I applied all the concepts in another project of mine ClickSync ![Alt text](image_filename.extension)
+I applied all the concepts in another project of mine [ClickSync](https://github.com/ram-sharanga/clicksync)
+![clicksync image](clicksync.png)
 
 Here I applied once again the google OAuth, RLS on supabase table, Policies, Broadcast - realtime etc.
 
